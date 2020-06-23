@@ -1,0 +1,106 @@
+<html>
+    <head>
+        <title>HW4 571</title>
+        <script type="text/javascript">
+            function jSONToHtml(file){
+                
+                var URL = file.URL.value;
+                if(URL == ""){
+                    alert("Please enter a file name");
+                    return;
+                }
+                var req = new XMLHttpRequest();
+                try{
+                    if(req.status != "404"){
+                        req.open("GET", URL, false);
+                        req.send();
+                        jsonDoc = JSON.parse(req.responseText);
+                        jsonDoc.onload = generateHTML(jsonDoc);
+                        if(jsonDoc.onload == "0"){
+                            alert("No content!");
+                        }
+                        else{
+                            htmlWindow = window.open("","HW4","height=700, width=1360");
+                            htmlWindow.document.write(html_text);
+                            htmlWindow.document.close();
+                        }
+                    }
+                }
+                catch(error){
+                    
+                        alert("File doesn't exist")
+                   }
+            }
+            function generateHTML(jsonDoc){
+                root = jsonDoc.documentElement;
+                html_text = "<html><head><title>HW4 571 JSON to HTML</title></head><body><table border='2'><tr>";
+                var tableData = jsonDoc.Mainline.Table;
+                var tableLength = Object.keys(tableData).length;
+                if(tableLength <= 1){
+                    return 0;
+                }
+                else{
+                    carlistHeader=jsonDoc.Mainline.Table.Header.Data;
+                    for (var i in carlistHeader){
+                        html_text+= "<th>"+carlistHeader[i]+"</th>";
+                    }
+                    html_text+= "</tr>"
+                    var carlist = jsonDoc.Mainline.Table.Row;
+                    console.log(carlist.Rank);
+                    for(j=0; j<carlist.length; j++){
+                        carlistRow = carlist[j];
+                        html_text+= "<tr>"
+                        var rowData = Object.keys(carlistRow);
+                        rankRow = carlistRow['Rank'];
+                        html_text+= "<td>"+rankRow+"</td>"
+                        groupRow = carlistRow['Group'];
+                        html_text+= "<td>"+groupRow+"</td>"
+                        hubRow = carlistRow['Hubs'];
+                        hub_keys = Object.keys(hubRow);
+                        html_text+= "<td>"
+                        for(var l in hubRow[hub_keys])
+                            if(hubRow[hub_keys][l] == ""){
+                                    html_text+= ""+hubRow[hub_keys][l]+""
+                                }
+                            else{
+                                if(l==0){
+                                    html_text+= "<ul><li><strong>"+hubRow[hub_keys][l]+"</strong></li></ul>"
+                                }
+                                else{
+                                html_text+= "<ul><li>"+hubRow[hub_keys][l]+"</li></ul>"
+                                }
+                            }
+                        html_text+= "</td>"
+                        vehiclesRow = carlistRow['Vehicles'];
+                        html_text+= "<td>"+vehiclesRow+"</td>"
+                        wikiRow = carlistRow['HomePage'];
+                        if(wikiRow == '' || wikiRow == undefined){
+                            html_text+= "<td></td>";
+                        }
+                        else{
+                            html_text+= "<td><a href="+wikiRow+">"+wikiRow+"</a></td>"
+                        }
+                        logoRow = carlistRow['Logo']; 
+                        if(logoRow == '' || logoRow == undefined){
+                            html_text+= "<td style='height:200px;width:200px;'></td>";
+                        }
+                        else{
+                            html_text+= "<td><img src="+logoRow+" alt='' height='200' width='200'/></td>";
+                            
+                        }
+                        html_text+= "</tr>"
+                    }
+                    return 1;
+                }
+                html_text+= "</table></body></html>";
+            }
+        </script>
+    </head>
+    <body style="text-align: center; padding: 15%;">
+        <h2>Enter URL for largest manufacturers by production (2017) List JSON File</h2>
+        <form name="jsonform" method="POST" id="jsontohtml">
+            <input type="text" name="URL" value=""> <br/> <br/>
+            <input id="queryBtn" type="button" value="Submit Query" onClick = "jSONToHtml(this.form)"/>
+        </form>
+    </body>
+</html>
